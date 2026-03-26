@@ -1,7 +1,7 @@
 const display = document.getElementById("display");
 const micBtn = document.getElementById("micBtn");
 
-// ================= BASIC =================
+
 function append(value) {
   display.value += value;
 }
@@ -14,7 +14,7 @@ function calculate() {
   }
 }
 
-// ================= INTEGRATION =================
+// integrate
 function integrate(func, a, b, n = 1000) {
   let h = (b - a) / n;
   let sum = 0;
@@ -28,7 +28,7 @@ function integrate(func, a, b, n = 1000) {
   return (h / 3) * sum;
 }
 
-// ================= SAFE EVAL =================
+// evaluate with Math functions
 function evaluateExpression(expr) {
   try {
     expr = expr
@@ -44,7 +44,7 @@ function evaluateExpression(expr) {
   }
 }
 
-// ================= NORMALIZE =================
+// normalize 
 function normalizeSpeech(text) {
   return text
     .toLowerCase()
@@ -62,7 +62,7 @@ function normalizeSpeech(text) {
     .trim();
 }
 
-// ================= WORD → NUMBER =================
+// word to number
 function wordsToNumbers(text) {
   const map = {
     zero: 0, one: 1, two: 2, three: 3, four: 4,
@@ -77,7 +77,7 @@ function wordsToNumbers(text) {
   return text;
 }
 
-// ================= VOICE =================
+// Voice Recognition
 const SpeechRecognition =
   window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -105,9 +105,9 @@ if (SpeechRecognition) {
       return;
     }
 
-    // ================= INTENT FIRST =================
 
-    // ✅ Power (direct)
+
+
     let rawPowerMatch = text.match(/(\d+)\s*(power|raised to|to the power of)\s*(\d+)/i);
     if (rawPowerMatch) {
       display.value = Math.pow(rawPowerMatch[1], rawPowerMatch[3]);
@@ -121,7 +121,7 @@ if (SpeechRecognition) {
       return;
     }
 
-    // ================= RECOVERY =================
+    // Recovery
 
     // 6.4 → 6 power 4
     text = text.replace(/(\d+)\.(\d+)/g, (m,a,b) => {
@@ -136,27 +136,27 @@ if (SpeechRecognition) {
       text = `${text[0]} by ${text[2]}`;
     }
     
-    // detect power again
+    
 
     let powerFixMatch = text.match(/(\d+)\s*power\s*(\d+)/i);
     if (powerFixMatch) {
         display.value = Math.pow(powerFixMatch[1], powerFixMatch[2]);
         return;
     }
-    // ================= NORMALIZE =================
+  
     text = normalizeSpeech(text);
     text = wordsToNumbers(text);
 
     console.log("Normalized:", text);
 
-    // ================= POWER =================
+
     let powerMatch = text.match(/(\d+)\s*(power|to the power of|raised to)\s*(\d+)/);
     if (powerMatch) {
       display.value = Math.pow(powerMatch[1], powerMatch[3]);
       return;
     }
 
-    // ================= DIVISION =================
+    
     let divideMatch = text.match(/divide\s*(\d+)\s*by\s*(\d+)/);
     if (divideMatch) {
       display.value = divideMatch[1] / divideMatch[2];
@@ -175,17 +175,17 @@ if (SpeechRecognition) {
       return;
     }
 
-    // ================= DECIMAL =================
+    // Decimal Fix
     text = text.replace(/(\d+)\s*point\s*(\d+)/g, "$1.$2");
 
-    // ================= PERCENT =================
+    // Percentages
     let percent = text.match(/(\d+)\s*(%|percent)\s*of\s*(\d+)/);
     if (percent) {
       display.value = (percent[1] / 100) * percent[3];
       return;
     }
 
-    // ================= SQUARE / CUBE =================
+    // calculate square and cube
     if (/square of (\d+)/.test(text)) {
       let n = text.match(/square of (\d+)/)[1];
       display.value = n ** 2;
@@ -198,7 +198,7 @@ if (SpeechRecognition) {
       return;
     }
 
-    // ================= ROOT =================
+    // root
     if (/square root of\s*$/.test(text)) {
       display.value = "Say a number after root";
       return;
@@ -216,7 +216,7 @@ if (SpeechRecognition) {
       return;
     }
 
-    // ================= INTEGRAL =================
+    // integral
     if (text.includes("integral")) {
       text = text.replace("of", "");
 
@@ -240,13 +240,13 @@ if (SpeechRecognition) {
       return;
     }
 
-    // ================= VALIDATION =================
+    // validation
     if (!/[0-9+\-*/().]/.test(text)) {
       display.value = "Say a math expression";
       return;
     }
 
-    // ================= FINAL (BODMAS) =================
+    // Using BODMAS
     let expression = text.replace(/\^/g, "**");
 
     console.log("Final Expression:", expression);
