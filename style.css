@@ -1,7 +1,6 @@
 body {
   margin: 0;
   height: 100vh;
-  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -16,16 +15,15 @@ body {
   border-radius: 20px;
   width: 300px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-  text-align: stretch;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  text-align: center;
 }
 
 h1 {
-  color: #fff;
   font-size: 20px;
   margin-bottom: 15px;
+  background: linear-gradient(90deg, #00f5ff, #00ff9d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 #display {
@@ -36,15 +34,30 @@ h1 {
   margin-bottom: 15px;
   font-size: 22px;
   text-align: right;
-  padding: 10px 15px;
-  background: #fff;
-
+  padding: 10px;
+  font-weight: 600;
   box-sizing: border-box;
-  display: block;
+  background: rgba(255, 255, 255, 0.9);
+  color: #111;
+
+  outline: none;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  overflow-x: auto;
+
+}
+
+#display.error {
+  color: #ff4d4d
+}
+
+#display.success {
+  color: #00ff9d;
+  font-weight: bold;
 }
 
 .buttons {
-  width: 100%;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
@@ -52,23 +65,13 @@ h1 {
 
 button {
   height: 60px;
-  width: 100%;
   border: none;
-  border-radius: 12px;
+  border-radius: 15px;
   font-size: 18px;
   cursor: pointer;
   background: linear-gradient(145deg, #00c6ff, #0072ff);
   color: white;
-  transition: 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 0;
-}
-
-button:hover {
-  transform: scale(1.05);
+  font-weight: bold;
 }
 
 .op {
@@ -79,19 +82,13 @@ button:hover {
   background: linear-gradient(145deg, #00ff87, #60efff);
 }
 
+.clear {
+  background: red;
+}
+
 .mic {
   width: 100%;
   margin-top: 15px;
   height: 55px;
-  font-size: 18px;
   background: linear-gradient(145deg, #00ff87, #00c9ff);
-}
-
-html, body {
-  height: 100%;
-}
-
-h1 {
-  text-align: center;
-  width: 100%;
 }

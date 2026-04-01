@@ -1,268 +1,170 @@
 const display = document.getElementById("display");
 const micBtn = document.getElementById("micBtn");
 
-
+// ================= BASIC =================
 function append(value) {
+  if (display.value === "" && ["+", "-", "*", "/", ")"].includes(value)) return;
   display.value += value;
+}
+
+function clearDisplay() {
+  display.value = "";
+}
+
+function backspace() {
+  display.value = display.value.slice(0, -1);
 }
 
 function calculate() {
   try {
-    display.value = eval(display.value);
+    let expr = display.value
+      .replace(/×/g, "*")
+      .replace(/÷/g, "/");
+
+    display.value = eval(expr);
   } catch {
     display.value = "Error";
   }
 }
 
-// integrate
+// ================= INTEGRATION =================
 function integrate(func, a, b, n = 1000) {
   let h = (b - a) / n;
   let sum = 0;
 
   for (let i = 0; i <= n; i++) {
     let x = a + i * h;
-    let weight = (i === 0 || i === n) ? 1 : (i % 2 === 0 ? 2 : 4);
-    sum += weight * func(x);
+    let w = (i === 0 || i === n) ? 1 : (i % 2 === 0 ? 2 : 4);
+    sum += w * func(x);
   }
 
   return (h / 3) * sum;
 }
 
-// evaluate with Math functions
-function evaluateExpression(expr) {
-  try {
-    expr = expr
-      .replace(/\bpi\b/g, "Math.PI")
-      .replace(/\be\b/g, "Math.E")
-      .replace(/√\s*(\d+)/g, "Math.sqrt($1)");
-
-    console.log("Evaluating:", expr);
-    return eval(expr);
-  } catch (e) {
-    console.log("Eval Error:", e);
-    return "Error";
-  }
-}
-
-// normalize 
+// ================= NORMALIZE =================
 function normalizeSpeech(text) {
   return text
     .toLowerCase()
-    .replace(/what is|calculate|find|please|can you|tell me/g, "")
+    .replace(/what is|calculate|find|please|tell me/g, "")
     .replace(/open bracket/g, "(")
     .replace(/close bracket/g, ")")
     .replace(/multiply|times|into/g, " * ")
-    .replace(/times/g, " * ")
-    .replace(/into/g, " * ")
-    .replace(/divided by/g, " / ")
-    .replace(/divide by/g, " / ")
+    .replace(/divided by|divide by/g, " / ")
     .replace(/plus/g, " + ")
     .replace(/minus/g, " - ")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-// word to number
+// ================= WORDS =================
 function wordsToNumbers(text) {
   const map = {
-    zero: 0, one: 1, two: 2, three: 3, four: 4,
-    five: 5, six: 6, seven: 7, eight: 8, nine: 9,
-    ten: 10
+    zero:0, one:1, two:2, three:3, four:4,
+    five:5, six:6, seven:7, eight:8, nine:9, ten:10
   };
 
-  Object.keys(map).forEach(word => {
-    text = text.replace(new RegExp("\\b" + word + "\\b", "g"), map[word]);
+  Object.keys(map).forEach(w => {
+    text = text.replace(new RegExp("\\b"+w+"\\b","g"), map[w]);
   });
 
   return text;
 }
 
-// Voice Recognition
+// ================= VOICE =================
 const SpeechRecognition =
   window.SpeechRecognition || window.webkitSpeechRecognition;
 
 if (SpeechRecognition) {
   const recognition = new SpeechRecognition();
-  let isListening = false;
 
-  micBtn.addEventListener("click", () => {
-    if (!isListening) {
-      recognition.start();
-      isListening = true;
-    }
-  });
-
-  recognition.onend = () => {
-    isListening = false;
+  micBtn.onclick = () => {
+    try { recognition.stop(); } catch {}
+    recognition.start();
   };
 
   recognition.onresult = (event) => {
     let text = event.results[0][0].transcript;
-    console.log("Raw Voice:", text);
+    console.log("Voice:", text);
 
-    if (!text || text.trim() === "") {
+    if (!text.trim()) {
       display.value = "Say something";
       return;
     }
 
-
-
-
-    let rawPowerMatch = text.match(/(\d+)\s*(power|raised to|to the power of)\s*(\d+)/i);
-    if (rawPowerMatch) {
-      display.value = Math.pow(rawPowerMatch[1], rawPowerMatch[3]);
+    // POWER
+    let p = text.match(/(\d+)\s*(power|raised to)\s*(\d+)/i);
+    if (p) {
+      display.value = Math.pow(p[1], p[3]);
       return;
     }
 
-    //  Division 
-    let rawByMatch = text.match(/(\d+)\s*by\s*(\d+)/i);
-    if (rawByMatch) {
-      display.value = rawByMatch[1] / rawByMatch[2];
+    // DIVISION "by"
+    let by = text.match(/(\d+)\s*by\s*(\d+)/i);
+    if (by) {
+      display.value = by[1] / by[2];
       return;
     }
 
-    // Recovery
-
-    // 6.4 → 6 power 4
-    text = text.replace(/(\d+)\.(\d+)/g, (m,a,b) => {
-        if (b.length === 1 && parseInt(b) <= 9) {
-            return `${a} power ${b}`;
-        }
-        return m;
-    });
-
-    // 843 → 8 by 4
-    if (/^\d{3}$/.test(text)) {
-      text = `${text[0]} by ${text[2]}`;
-    }
-    
-    
-
-    let powerFixMatch = text.match(/(\d+)\s*power\s*(\d+)/i);
-    if (powerFixMatch) {
-        display.value = Math.pow(powerFixMatch[1], powerFixMatch[2]);
-        return;
-    }
-  
-    text = normalizeSpeech(text);
-    text = wordsToNumbers(text);
-
-    console.log("Normalized:", text);
-
-
-    let powerMatch = text.match(/(\d+)\s*(power|to the power of|raised to)\s*(\d+)/);
-    if (powerMatch) {
-      display.value = Math.pow(powerMatch[1], powerMatch[3]);
-      return;
-    }
-
-    
-    let divideMatch = text.match(/divide\s*(\d+)\s*by\s*(\d+)/);
-    if (divideMatch) {
-      display.value = divideMatch[1] / divideMatch[2];
-      return;
-    }
-
-    let byMatch = text.match(/(\d+)\s*by\s*(\d+)/);
-    if (byMatch) {
-      display.value = byMatch[1] / byMatch[2];
-      return;
-    }
-
-    let spaceMatch = text.match(/^(\d+)\s+(\d+)$/);
-    if (spaceMatch) {
-      display.value = spaceMatch[1] / spaceMatch[2];
-      return;
-    }
-
-    // Decimal Fix
+    // decimal fix
     text = text.replace(/(\d+)\s*point\s*(\d+)/g, "$1.$2");
 
-    // Percentages
-    let percent = text.match(/(\d+)\s*(%|percent)\s*of\s*(\d+)/);
+    // percent
+    let percent = text.match(/(\d+)\s*(percent|%)\s*of\s*(\d+)/);
     if (percent) {
-      display.value = (percent[1] / 100) * percent[3];
+      display.value = (percent[1]/100)*percent[3];
       return;
     }
 
-    // calculate square and cube
+    // square
     if (/square of (\d+)/.test(text)) {
-      let n = text.match(/square of (\d+)/)[1];
-      display.value = n ** 2;
+      display.value = Math.pow(RegExp.$1,2);
       return;
     }
 
+    // cube
     if (/cube of (\d+)/.test(text)) {
-      let n = text.match(/cube of (\d+)/)[1];
-      display.value = n ** 3;
+      display.value = Math.pow(RegExp.$1,3);
       return;
     }
 
     // root
-    if (/square root of\s*$/.test(text)) {
-      display.value = "Say a number after root";
-      return;
-    }
-
     if (/square root of (\d+)/.test(text)) {
-      let n = text.match(/square root of (\d+)/)[1];
-      display.value = Math.sqrt(n);
-      return;
-    }
-
-    if (/root (\d+)/.test(text)) {
-      let n = text.match(/root (\d+)/)[1];
-      display.value = Math.sqrt(n);
+      display.value = Math.sqrt(RegExp.$1);
       return;
     }
 
     // integral
     if (text.includes("integral")) {
-      text = text.replace("of", "");
+      let func = x=>x;
 
-      let func = (x) => x;
+      if (text.includes("square")) func = x=>x*x;
+      if (text.includes("cube")) func = x=>x*x*x;
 
-      if (text.includes("x square") || text.includes("x squared")) {
-        func = (x) => x * x;
-      } else if (text.includes("x cube")) {
-        func = (x) => x * x * x;
-      }
-
-      let limits = text.match(/(\d+)\s*(to|-)\s*(\d+)/);
-
-      if (!limits) {
-        display.value = "Say limits like: from 1 to 2";
+      let m = text.match(/(\d+)\s*to\s*(\d+)/);
+      if (!m) {
+        display.value = "Say limits 1 to 2";
         return;
       }
 
-      let result = integrate(func, +limits[1], +limits[3]);
-      display.value = result.toFixed(4);
+      display.value = integrate(func, +m[1], +m[2]).toFixed(4);
       return;
     }
 
-    // validation
-    if (!/[0-9+\-*/().]/.test(text)) {
-      display.value = "Say a math expression";
-      return;
-    }
+    text = normalizeSpeech(text);
+    text = wordsToNumbers(text);
 
-    // Using BODMAS
-    
-    let expression = text.replace(/plus/g, "+")
-      .replace(/minus/g, "-")
-      .replace(/times/g, "*")
-      .replace(/multiply|times|into/g, "*")
-      .replace(/divided by/g, "/")
-      .replace(/divide by/g, "/")
-      .replace(/\^/g, "**");
-    
-    console.log("Expression for Eval:", expression);
-    let result = evaluateExpression(expression);
-    display.value = result;
+    let expr = text
+      .replace(/plus/g,"+")
+      .replace(/minus/g,"-")
+      .replace(/times|multiply/g,"*")
+      .replace(/divided by/g,"/")
+      .replace(/\^/g,"**");
+
+    display.value = eval(expr);
   };
 
-  recognition.onerror = (event) => {
-    display.value = "Mic Error: " + event.error;
+  recognition.onerror = (e) => {
+    display.value = "Mic Error: " + e.error;
+    setTimeout(()=>display.value="",2000);
   };
 }
-
