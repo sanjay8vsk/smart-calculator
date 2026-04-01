@@ -51,7 +51,7 @@ function normalizeSpeech(text) {
     .replace(/what is|calculate|find|please|can you|tell me/g, "")
     .replace(/open bracket/g, "(")
     .replace(/close bracket/g, ")")
-    .replace(/multiplied by|multiply by/g, " * ")
+    .replace(/multiply|times|into/g, " * ")
     .replace(/times/g, " * ")
     .replace(/into/g, " * ")
     .replace(/divided by/g, " / ")
@@ -247,10 +247,16 @@ if (SpeechRecognition) {
     }
 
     // Using BODMAS
-    let expression = text.replace(/\^/g, "**");
-
-    console.log("Final Expression:", expression);
-
+    
+    let expression = text.replace(/plus/g, "+")
+      .replace(/minus/g, "-")
+      .replace(/times/g, "*")
+      .replace(/multiply|times|into/g, "*")
+      .replace(/divided by/g, "/")
+      .replace(/divide by/g, "/")
+      .replace(/\^/g, "**");
+    
+    console.log("Expression for Eval:", expression);
     let result = evaluateExpression(expression);
     display.value = result;
   };

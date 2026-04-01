@@ -7,34 +7,39 @@
 </head>
 <body>
 
-<div class="calculator">
-  <h2> Smart Math Calculator</h2>
+<div class="container">
+  <h1>Smart Math Calculator</h1>
 
-  <input type="text" id="display" disabled />
+  <input type="text" id="display" readonly />
 
   <div class="buttons">
-    <button onclick="append('7')">7</button>
-    <button onclick="append('8')">8</button>
-    <button onclick="append('9')">9</button>
-    <button onclick="append('/')">/</button>
+    <!-- Row 1 -->
+  <button onclick="append('7')">7</button>
+  <button onclick="append('8')">8</button>
+  <button onclick="append('9')">9</button>
+  <button class="op" onclick="append('/')">/</button>
 
-    <button onclick="append('4')">4</button>
-    <button onclick="append('5')">5</button>
-    <button onclick="append('6')">6</button>
-    <button onclick="append('*')">*</button>
+  <!-- Row 2 -->
+  <button onclick="append('4')">4</button>
+  <button onclick="append('5')">5</button>
+  <button onclick="append('6')">6</button>
+  <button class="op" onclick="append('*')">×</button>
 
-    <button onclick="append('1')">1</button>
-    <button onclick="append('2')">2</button>
-    <button onclick="append('3')">3</button>
-    <button onclick="append('-')">-</button>
+  <!-- Row 3 -->
+  <button onclick="append('1')">1</button>
+  <button onclick="append('2')">2</button>
+  <button onclick="append('3')">3</button>
+  <button class="op" onclick="append('-')">-</button>
 
-    <button onclick="append('0')">0</button>
-    <button onclick="append('.')">.</button>
-    <button onclick="calculate()">=</button>
-    <button onclick="append('+')">+</button>
+  <!-- Row 4 -->
+  <button onclick="append('0')">0</button>
+  <button onclick="append('.')">.</button>
+  <button class="equal" onclick="calculate()">=</button>
+  <button class="op" onclick="append('+')">+</button>
+
   </div>
 
-  <button id="micBtn"> Speak</button>
+  <button id="micBtn" class="mic">🎤 Speak</button>
 </div>
 
 <script src="script.js"></script>
