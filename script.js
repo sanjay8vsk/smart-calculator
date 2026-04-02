@@ -1,7 +1,7 @@
 const display = document.getElementById("display");
 const micBtn = document.getElementById("micBtn");
 
-// ================= BASIC =================
+// Basic calculator functions
 function append(value) {
   if (display.value === "" && ["+", "-", "*", "/", ")"].includes(value)) return;
   display.value += value;
@@ -27,7 +27,7 @@ function calculate() {
   }
 }
 
-// ================= INTEGRATION =================
+// Integration using Simpson's rule
 function integrate(func, a, b, n = 1000) {
   let h = (b - a) / n;
   let sum = 0;
@@ -41,7 +41,7 @@ function integrate(func, a, b, n = 1000) {
   return (h / 3) * sum;
 }
 
-// ================= NORMALIZE =================
+// Normalize speech input to a mathematical expression
 function normalizeSpeech(text) {
   return text
     .toLowerCase()
@@ -56,7 +56,7 @@ function normalizeSpeech(text) {
     .trim();
 }
 
-// ================= WORDS =================
+// Convert number words to digits
 function wordsToNumbers(text) {
   const map = {
     zero:0, one:1, two:2, three:3, four:4,
@@ -70,7 +70,7 @@ function wordsToNumbers(text) {
   return text;
 }
 
-// ================= VOICE =================
+// Speech recognition for voice input
 const SpeechRecognition =
   window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -91,21 +91,21 @@ if (SpeechRecognition) {
       return;
     }
 
-    // POWER
+    // Power
     let p = text.match(/(\d+)\s*(power|raised to)\s*(\d+)/i);
     if (p) {
       display.value = Math.pow(p[1], p[3]);
       return;
     }
 
-    // DIVISION "by"
+    // Division
     let by = text.match(/(\d+)\s*by\s*(\d+)/i);
     if (by) {
       display.value = by[1] / by[2];
       return;
     }
 
-    // decimal fix
+    // Decimal point
     text = text.replace(/(\d+)\s*point\s*(\d+)/g, "$1.$2");
 
     // percent
